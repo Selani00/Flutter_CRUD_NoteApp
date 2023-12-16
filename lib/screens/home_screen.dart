@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              NoteReader(note),
+                                              ExistingNoteEditorScreen(note),
                                         ));
                                   }, note))
                               .toList(),

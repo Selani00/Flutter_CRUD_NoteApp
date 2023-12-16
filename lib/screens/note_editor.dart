@@ -76,7 +76,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   "note_content": _mainController.text,
                   "color_id": color_id.toString(),
                 })
-                .then((value) => {print(value.id), Navigator.pop(context)})
+                .then((DocumentReference document) => {print(document.id), Navigator.pop(context)})
                 .catchError(
                     (error) => print("Failed to add new note due to $error"));
           },

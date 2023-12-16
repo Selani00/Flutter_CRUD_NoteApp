@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:note_crud/styles/app_style.dart';
 
 class ExistingNoteEditorScreen extends StatefulWidget {
-  final String? documentId;
-
-  ExistingNoteEditorScreen(this.doc, {super.key, this.documentId});
+  ExistingNoteEditorScreen(this.doc, {super.key});
 
   QueryDocumentSnapshot doc;
 
@@ -17,6 +15,7 @@ class ExistingNoteEditorScreen extends StatefulWidget {
 }
 
 class _ExistingNoteEditorScreenState extends State<ExistingNoteEditorScreen> {
+  int color_id = Random().nextInt(MyColors.cardsColors.length);
   String date = DateTime.now().toString();
 
   TextEditingController _titleController = TextEditingController();
@@ -36,17 +35,20 @@ class _ExistingNoteEditorScreenState extends State<ExistingNoteEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int colorId = int.tryParse(widget.doc['color_id'].toString()) ?? 0;
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
-    Color backgroundColor =
-        colorId >= 0 && colorId < MyColors.cardsColors.length
-            ? MyColors.cardsColors[colorId]
-            : Colors.grey;
+    // int colorId = int.tryParse(widget.doc['color_id'].toString()) ?? 0;
+
+    // Color backgroundColor =
+    //     colorId >= 0 && colorId < MyColors.cardsColors.length
+    //         ? MyColors.cardsColors[colorId]
+    //         : Colors.grey;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: MyColors.cardsColors[color_id],
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: MyColors.cardsColors[color_id],
         elevation: 0.0,
         iconTheme: IconThemeData(color: Colors.black),
         title: Text(
@@ -54,7 +56,8 @@ class _ExistingNoteEditorScreenState extends State<ExistingNoteEditorScreen> {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      body: Padding(
+      body: Stack(children: [
+        Padding(
           padding: EdgeInsets.all(16.0),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -84,39 +87,111 @@ class _ExistingNoteEditorScreenState extends State<ExistingNoteEditorScreen> {
               ),
               style: MyColors.mainContent,
             ),
-          ])),
-      floatingActionButton: Transform.scale(
-        scale: 1.3,
-        child: FloatingActionButton(
-          onPressed: () async {
-            if (widget.documentId != null) {
-              FirebaseFirestore.instance
-                  .collection("Notes")
-                  .doc(widget.documentId) // Use the document ID to update
-                  .update({
-                    "note_title": _titleController.text,
-                    "creation_data": date,
-                    "note_content": _mainController.text,
-                    "color_id": backgroundColor,
-                  })
-                  .then((_) => Navigator.pop(context))
-                  .catchError(
-                      (error) => print("Failed to update note due to $error"));
-            } else {
-              print("Document ID is null, unable to update.");
-            }
-          },
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          child: Icon(
-            Icons.save,
-            size: 32,
-          ),
+          ]),
         ),
-      ),
+        Positioned(
+          top: height * 0.71,
+          left: width * 0.83,
+          child: Column(
+            children: [
+              // FloatingActionButton(
+              //   onPressed: () async {
+              //     if (widget.doc.id != null) {
+              //       FirebaseFirestore.instance
+              //           .collection("Notes")
+              //           .doc(widget.doc.id)
+              //           // Use the document ID to update
+              //           .update({
+              //             "note_title": _titleController.text,
+              //             "creation_data": date,
+              //             "note_content": _mainController.text,
+              //             "color_id": color_id.toString(),
+              //           })
+              //           .then((_) => Navigator.pop(context))
+              //           .catchError((error) =>
+              //               print("Failed to update note due to $error"));
+              //     } else {
+              //       print("Document ID is null, unable to update.");
+              //     }
+              //   },
+              //   backgroundColor: Colors.white,
+              //   foregroundColor: Colors.black,
+              //   shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.circular(30.0),
+              //   ),
+              //   child: Icon(
+              //     Icons.save,
+              //     size: 32,
+              //   ),
+              // ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(60, 60),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  fixedSize: Size(60, 60),
+                ),
+                onPressed: () async {
+                  if (widget.doc.id != null) {
+                    FirebaseFirestore.instance
+                        .collection("Notes")
+                        .doc(widget.doc.id)
+                        // Use the document ID to update
+                        .update({
+                          "note_title": _titleController.text,
+                          "creation_data": date,
+                          "note_content": _mainController.text,
+                          "color_id": color_id.toString(),
+                        })
+                        .then((_) => Navigator.pop(context))
+                        .catchError((error) =>
+                            print("Failed to update note due to $error"));
+                  } else {
+                    print("Document ID is null, unable to update.");
+                  }
+                },
+                child: Center(
+                  child: Icon(
+                    Icons.save,
+                    size: 32,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(60, 60),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  fixedSize: Size(60, 60),
+                ),
+                onPressed: () async {
+                  if (widget.doc.id != null) {
+                    FirebaseFirestore.instance
+                        .collection("Notes")
+                        .doc(widget.doc.id)
+                        // Use the document ID to update
+                        .delete()
+                        .then((_) => Navigator.pop(context))
+                        .catchError(
+                            (error) => print("Failed to delete $error"));
+                  } else {
+                    print("Document ID is null, unable to delete.");
+                  }
+                },
+                child: Center(
+                  child: Icon(
+                    Icons.delete,
+                    size: 32,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )
+      ]),
     );
   }
 }
